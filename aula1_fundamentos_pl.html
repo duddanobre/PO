@@ -1,0 +1,2922 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aula 1 — Fundamentos e Programação Linear</title>
+
+    <!-- Google Fonts: Nunito, Poppins, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (VERBOO NEON CYBER)
+           =========================================== */
+        :root {
+            /* Verboo brand colors */
+            --accent: #AD34FE;
+            --accent-dark: #9024D6;
+            --accent-light: #C057FF;
+            --accent-glow: rgba(173, 52, 254, 0.35);
+            --green: #22C55E;
+            --amber: #F59E0B;
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --text-primary: #E2E8F0;
+            --text-muted: #E2E8F0;
+
+            /* Typography — classroom projector sizes (LARGE) */
+            --font-display: 'Nunito', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --title-size: clamp(3rem, 7vw, 6rem);
+            --h2-size: clamp(2.4rem, 5.5vw, 4rem);
+            --h3-size: clamp(1.8rem, 4vw, 3rem);
+            --body-size: clamp(1.4rem, 2.8vw, 2.2rem);
+            --small-size: clamp(1.2rem, 2.2vw, 1.7rem);
+            --subtitle-size: clamp(1.5rem, 3.5vw, 2.5rem);
+
+            /* Spacing */
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(1rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE RESET
+           =========================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===========================================
+           VIEWPORT-BASE.CSS (MANDATORY)
+           =========================================== */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.5rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1.25rem, 3vw, 2rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.25rem, 4vw, 2rem);
+                --body-size: clamp(0.8rem, 1.5vw, 1.1rem);
+            }
+            .slide-nav, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.5rem, 7vw, 2.5rem); }
+            .grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           GLOBAL STYLES
+           =========================================== */
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        h1 { font-size: var(--title-size); }
+        h2 { font-size: var(--h2-size); }
+        h3 { font-size: var(--h3-size); }
+
+        code, .mono {
+            font-family: var(--font-mono);
+        }
+
+        /* ===========================================
+           NEON CYBER BACKGROUND — grid + radial glow
+           =========================================== */
+        .slide {
+            background:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+                var(--bg-primary);
+            background-size: 60px 60px, 60px 60px, 100% 100%;
+        }
+
+        /* Subtle radial glow per slide */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(173, 52, 254, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===========================================
+           CORNER DECORATIONS (neon cyber style)
+           =========================================== */
+        .corner-tl, .corner-br {
+            position: absolute;
+            width: clamp(20px, 3vw, 40px);
+            height: clamp(20px, 3vw, 40px);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .corner-tl {
+            top: clamp(10px, 2vw, 24px);
+            left: clamp(10px, 2vw, 24px);
+            border-top: 2px solid var(--accent);
+            border-left: 2px solid var(--accent);
+        }
+        .corner-br {
+            bottom: clamp(10px, 2vw, 24px);
+            right: clamp(10px, 2vw, 24px);
+            border-bottom: 2px solid var(--green);
+            border-right: 2px solid var(--green);
+        }
+
+        /* ===========================================
+           ANIMATIONS — Techy/Futuristic feel
+           Fade + slide up, triggered by .visible class
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Staggered children */
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+        .reveal:nth-child(7) { transition-delay: 0.7s; }
+
+        /* Glow text effect */
+        .glow {
+            text-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(173, 52, 254, 0.15);
+        }
+
+        /* Neon underline accent */
+        .neon-line {
+            display: inline-block;
+            position: relative;
+        }
+        .neon-line::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        /* ===========================================
+           PROGRESS BAR (top of viewport)
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            box-shadow: 0 0 10px var(--accent-glow);
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS (right side)
+           =========================================== */
+        .slide-nav {
+            position: fixed;
+            bottom: clamp(12px, 2vh, 24px);
+            right: clamp(16px, 3vw, 32px);
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1.5vw, 16px);
+            z-index: 9998;
+            font-family: var(--font-mono);
+            font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+            color: var(--text-muted);
+        }
+        .slide-nav button {
+            background: rgba(173, 52, 254, 0.15);
+            border: 1px solid rgba(173, 52, 254, 0.3);
+            color: var(--accent-light);
+            width: clamp(32px, 4vw, 44px);
+            height: clamp(32px, 4vw, 44px);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .slide-nav button:hover {
+            background: rgba(173, 52, 254, 0.3);
+            border-color: var(--accent);
+        }
+        .slide-nav .counter {
+            min-width: 4rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+        .slide-nav .counter .current {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: TITLE / COVER
+           =========================================== */
+        .title-slide .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: var(--content-gap);
+        }
+        .title-slide h1 {
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-light), var(--accent), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .title-slide .subtitle {
+            font-size: var(--subtitle-size);
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .title-slide .meta {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            letter-spacing: 0.05em;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: DIVIDER (section breaks)
+           =========================================== */
+        .divider-slide .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: var(--content-gap);
+        }
+        .divider-slide .section-number {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .divider-slide h2 {
+            font-weight: 800;
+            font-size: var(--title-size);
+            color: var(--text-primary);
+        }
+        .divider-slide .section-sub {
+            font-size: var(--subtitle-size);
+            color: var(--text-muted);
+            max-width: 600px;
+        }
+        .divider-slide::before {
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(173, 52, 254, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+        }
+
+        /* ===========================================
+           CONTENT SLIDE COMPONENTS
+           =========================================== */
+
+        /* Section title color — alternating accent colors */
+        .slide-content h2 {
+            margin-bottom: clamp(0.5rem, 1.5vw, 1.5rem);
+            color: var(--accent-light);
+        }
+        .slide:nth-child(4n+2) .slide-content h2 { color: var(--green); }
+        .slide:nth-child(4n+3) .slide-content h2 { color: var(--amber); }
+        .slide:nth-child(4n+4) .slide-content h2 { color: var(--accent-light); }
+
+        /* Bullet list with neon markers */
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1.2vh, 1rem);
+        }
+        .bullet-list li {
+            padding-left: clamp(1rem, 2vw, 1.5rem);
+            position: relative;
+            font-size: var(--body-size);
+        }
+        .bullet-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 2px;
+            box-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        /* Sub-bullets (muted) */
+        .bullet-list .sub {
+            padding-left: clamp(2rem, 4vw, 3rem);
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+        .bullet-list .sub::before {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            box-shadow: none;
+            left: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        /* Highlight box — callout with left border */
+        .highlight-box {
+            background: rgba(173, 52, 254, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.75rem, 2vw, 1.5rem);
+            border-radius: 0 8px 8px 0;
+            margin-top: clamp(0.5rem, 1vh, 1rem);
+            font-size: var(--body-size);
+        }
+        .highlight-box.amber {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--amber);
+        }
+        .highlight-box.green {
+            background: rgba(34, 197, 94, 0.1);
+            border-left-color: var(--green);
+        }
+
+        /* Numbered steps */
+        .steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1.2vh, 1rem);
+            counter-reset: step;
+        }
+        .steps li {
+            counter-increment: step;
+            padding-left: clamp(2rem, 4vw, 3rem);
+            position: relative;
+            font-size: var(--body-size);
+        }
+        .steps li:nth-child(1)::before { background: var(--accent); }
+        .steps li:nth-child(2)::before { background: var(--green); }
+        .steps li:nth-child(3)::before { background: var(--amber); }
+        .steps li:nth-child(4)::before { background: var(--accent-light); }
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: clamp(1.6rem, 2.8vw, 2.2rem);
+            height: clamp(1.6rem, 2.8vw, 2.2rem);
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Data table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--body-size);
+            margin-top: clamp(0.5rem, 1vh, 1rem);
+        }
+        .data-table th, .data-table td {
+            padding: clamp(0.4rem, 1vh, 0.75rem) clamp(0.5rem, 1.5vw, 1rem);
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .data-table th {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--accent-light);
+            font-size: var(--small-size);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table .row-highlight {
+            background: rgba(173, 52, 254, 0.08);
+        }
+
+        /* Math formula display */
+        .formula {
+            font-family: var(--font-mono);
+            font-size: var(--h3-size);
+            color: var(--accent-light);
+            text-align: center;
+            padding: clamp(0.75rem, 2vh, 1.5rem);
+            background: rgba(173, 52, 254, 0.06);
+            border-radius: 8px;
+            border: 1px solid rgba(173, 52, 254, 0.15);
+            margin-top: clamp(0.5rem, 1vh, 1rem);
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Inline tag/badge */
+        .tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            padding: 0.15em 0.6em;
+            border-radius: 4px;
+            background: rgba(173, 52, 254, 0.15);
+            color: var(--accent-light);
+            border: 1px solid rgba(173, 52, 254, 0.3);
+        }
+
+        /* Feature card grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            margin-top: clamp(0.5rem, 1vh, 1rem);
+        }
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: clamp(0.75rem, 2vw, 1.5rem);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .feature-card:nth-child(1) { border-left: 3px solid var(--accent); }
+        .feature-card:nth-child(2) { border-left: 3px solid var(--green); }
+        .feature-card:nth-child(3) { border-left: 3px solid var(--amber); }
+        .feature-card:nth-child(4) { border-left: 3px solid var(--accent-light); }
+        .feature-card:hover {
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(173, 52, 254, 0.1);
+        }
+        .feature-card h3 {
+            font-size: var(--body-size);
+            margin-bottom: 0.4em;
+        }
+        .feature-card:nth-child(1) h3 { color: var(--accent-light); }
+        .feature-card:nth-child(2) h3 { color: var(--green); }
+        .feature-card:nth-child(3) h3 { color: var(--amber); }
+        .feature-card:nth-child(4) h3 { color: var(--accent-light); }
+        .feature-card p {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+
+        /* ===========================================
+           INLINE EDITING UI
+           =========================================== */
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            cursor: pointer;
+        }
+        .edit-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent);
+            background: var(--bg-secondary);
+            color: var(--accent-light);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10001;
+            cursor: pointer;
+        }
+        .edit-toggle.show,
+        .edit-toggle.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .edit-banner {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            padding: 6px 20px;
+            border-radius: 0 0 8px 8px;
+            z-index: 10001;
+            transition: transform 0.3s ease;
+        }
+        .edit-banner.active {
+            transform: translateX(-50%) translateY(0);
+        }
+        body.edit-active [contenteditable] {
+            outline: 1.5px dashed rgba(173, 52, 254, 0.4);
+            outline-offset: 2px;
+            border-radius: 4px;
+            min-height: 1em;
+        }
+        body.edit-active [contenteditable]:focus {
+            outline-color: var(--accent);
+            background: rgba(173, 52, 254, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Slide navigation -->
+    <nav class="slide-nav" id="slideNav">
+        <button id="navPrev" aria-label="Slide anterior">&#8592;</button>
+        <span class="counter"><span class="current" id="navCurrent">1</span> / <span id="navTotal">1</span></span>
+        <button id="navNext" aria-label="Próximo slide">&#8594;</button>
+    </nav>
+
+    <!-- Inline editing controls -->
+    <div class="edit-hotzone" id="editHotzone"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)">&#9998;</button>
+    <div class="edit-banner" id="editBanner">EDIT MODE → Ctrl+S para salvar</div>
+
+
+    <!-- ========================================
+         SLIDE 1: CAPA
+         ======================================== -->
+    <section class="slide title-slide" data-slide="0">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal meta">MBA em Ciência de Dados · UNIFOR</p>
+            <h1 class="reveal glow">Pesquisa Operacional e Otimização em IA</h1>
+            <p class="reveal subtitle">Aula 1 → Fundamentos e Programação Linear</p>
+            <p class="reveal meta">Prof. Mafra &middot; Fundador da Verboo</p>
+            <p class="reveal meta">10 de abril de 2026</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 2: AGENDA
+         ======================================== -->
+    <section class="slide" data-slide="1">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Agenda da Aula</h2>
+            <ol class="steps">
+                <li class="reveal"><strong>Pesquisa Operacional</strong> → o que é e por que importa</li>
+                <li class="reveal"><strong>Notação Matemática</strong> → a linguagem dos livros</li>
+                <li class="reveal"><strong>Programação Linear</strong> → passo a passo</li>
+                <li class="reveal"><strong>Desafio na Mão</strong> → vocês resolvem</li>
+                <li class="reveal"><strong>Método Simplex</strong> → solução algébrica</li>
+                <li class="reveal"><strong>Casos Especiais</strong> → o que pode dar errado</li>
+                <li class="reveal"><strong>Hands-on Python</strong> → código que resolve</li>
+                <li class="reveal"><strong>Resumo e Próximos Passos</strong></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 3: QUEM SOU EU — BIO + FOTO
+         ======================================== -->
+    <section class="slide" data-slide="2">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="display: grid; grid-template-columns: auto 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; max-width: 95vw;">
+            <!-- Foto grande -->
+            <div class="reveal" style="display: flex; flex-direction: column; align-items: center;">
+                <div style="width: clamp(240px, 30vw, 380px); height: clamp(240px, 30vw, 380px); border-radius: 50%; overflow: hidden; border: 4px solid var(--accent); box-shadow: 0 0 40px var(--accent-glow), 0 0 80px rgba(173,52,254,0.15);">
+                    <img src="../imagens/IMG_2605.JPG" alt="Mafra" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;" />
+                </div>
+            </div>
+            <!-- Info -->
+            <div style="display: flex; flex-direction: column; gap: clamp(0.6rem, 1.2vh, 1rem);">
+                <h2 class="reveal" style="margin-bottom: 0;">Mafra</h2>
+                <div class="reveal" style="display: flex; align-items: center; gap: clamp(0.6rem, 1.2vw, 1rem); margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);">
+                    <img src="../imagens/vertical_roxa.png" alt="Verboo" style="height: clamp(50px, 8vh, 80px); filter: brightness(1.15) drop-shadow(0 0 12px rgba(173,52,254,0.4));" />
+                    <div>
+                        <p style="color: var(--accent-light); font-size: var(--body-size); font-weight: 600;">Fundador &amp; CEO</p>
+                        <p style="color: var(--text-muted); font-size: var(--small-size);">Plataforma para criar, testar e deployar agentes de IA no WhatsApp</p>
+                    </div>
+                </div>
+                <ul class="bullet-list" style="gap: clamp(0.3rem, 0.6vh, 0.5rem);">
+                    <li class="reveal">Ciência da Computação + Mestrado em IA · UNIFOR</li>
+                    <li class="reveal">+10 anos em IA aplicada, desde IBM Watson (2017)</li>
+                    <li class="reveal">+26.7M mensagens &middot; +3.2k leads/mês &middot; &lt; 2s resposta</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 3B: TRAJETÓRIA — TIMELINE 2 COLUNAS
+         ======================================== -->
+    <section class="slide" data-slide="2b">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1.2vh, 1rem);">Trajetória</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 3vw, 3rem);">
+
+                <!-- COLUNA ESQUERDA -->
+                <div class="reveal" style="position: relative; padding-left: clamp(1.8rem, 3.5vw, 3rem);">
+                    <div style="position: absolute; left: clamp(0.4rem, 1vw, 0.8rem); top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent-light), var(--amber));"></div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow);"></div>
+                        <span style="color: var(--accent); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2014</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Ciência da Computação · UNIFOR</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-light); box-shadow: 0 0 8px var(--accent-glow);"></div>
+                        <span style="color: var(--accent-light); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2017</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">BlueLab → lab de pesquisa UNIFOR + IBM</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.4);"></div>
+                        <span style="color: var(--green); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2017</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">UNIFOR → professor + gestor de projetos (DTech)</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,0.4);"></div>
+                        <span style="color: var(--amber); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2018</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Orla → fábrica de software (2018-2020)</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative;">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow);"></div>
+                        <span style="color: var(--accent); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2019</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Mestrado em IA · UNIFOR</p>
+                    </div>
+                </div>
+
+                <!-- COLUNA DIREITA -->
+                <div class="reveal" style="position: relative; padding-left: clamp(1.8rem, 3.5vw, 3rem);">
+                    <div style="position: absolute; left: clamp(0.4rem, 1vw, 0.8rem); top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--amber), var(--green), var(--green));"></div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,0.4);"></div>
+                        <span style="color: var(--amber); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2020</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Secretaria de Saúde do Ceará</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-light); box-shadow: 0 0 8px var(--accent-glow);"></div>
+                        <span style="color: var(--accent-light); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2021</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Klever → ecossistema de criptoativos</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow);"></div>
+                        <span style="color: var(--accent); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2018-2021</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Consultor de IA</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative; margin-bottom: clamp(0.3rem, 0.7vh, 0.6rem);">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(34,197,94,0.5); border: 2px solid #fff;"></div>
+                        <span style="color: var(--green); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2023</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Fundo a <strong>Verboo</strong> → agentes de IA no WhatsApp</p>
+                    </div>
+
+                    <div class="reveal" style="position: relative;">
+                        <div style="position: absolute; left: calc(-1 * clamp(1.5rem, 3vw, 2.5rem)); top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(34,197,94,0.5); border: 2px solid #fff;"></div>
+                        <span style="color: var(--green); font-family: var(--font-mono); font-size: clamp(0.8rem, 1.5vw, 1.1rem); font-weight: 600;">2025</span>
+                        <p style="font-size: clamp(0.8rem, 1.5vw, 1.1rem); margin-top: 0;">Startup Destaque → Ceará Awards</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 4: POSICIONAMENTO
+         ======================================== -->
+    <section class="slide" data-slide="3">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">O que esperar desta disciplina?</h2>
+            <ul class="bullet-list">
+                <li class="reveal">Aqui a abordagem é <span class="neon-line">visão de mercado</span>, um pouco menos acadêmica</li>
+                <li class="reveal">Foco: como um gestor consome e aplica otimização no dia a dia</li>
+                <li class="reveal">Prática, hands-on com Python, cases reais de negócio</li>
+            </ul>
+            <div class="highlight-box amber reveal">
+                O mais difícil não é resolver, é <strong>modelar</strong> o problema.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 5: DINAMICA DAS AULAS
+         ======================================== -->
+    <section class="slide" data-slide="4">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Dinâmica das Aulas</h2>
+            <ul class="bullet-list">
+                <li class="reveal"><strong>Hoje (Aula 1):</strong> Mais expositiva, base teórica</li>
+                <li class="reveal"><strong>Aulas 2, 3, 4:</strong> Sala invertida, vocês na frente, explicando e resolvendo</li>
+            </ul>
+            <div class="highlight-box reveal">
+                ChatGPT resolve qualquer exercício desses. O objetivo aqui é entender o raciocínio e formar senso crítico.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 6: AVALIACAO — VISÃO GERAL
+         ======================================== -->
+    <section class="slide" data-slide="5">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Avaliação</h2>
+            <div class="feature-grid reveal" style="grid-template-columns: 1fr 1fr; gap: clamp(0.8rem, 1.5vw, 1.5rem);">
+                <div class="feature-card" style="border-color: var(--accent);">
+                    <h3 style="color: var(--accent); font-size: var(--h3-size);">Projeto Final</h3>
+                    <p style="font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; color: #fff; margin: clamp(0.3rem,0.5vh,0.5rem) 0;">0 a 10</p>
+                    <p>Apresentação + Relatório + Notebook Python</p>
+                </div>
+                <div class="feature-card" style="border-color: var(--green);">
+                    <h3 style="color: var(--green); font-size: var(--h3-size);">Exercícios</h3>
+                    <p style="font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; color: #fff; margin: clamp(0.3rem,0.5vh,0.5rem) 0;">+1 extra</p>
+                    <p>Entregou todos os exercícios de aula</p>
+                </div>
+            </div>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Podem usar ChatGPT, Copilot, qualquer IA. Mas na Aula 4 eu vou fazer perguntas, e aí é com vocês.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 6B: PROJETO FINAL — DETALHES
+         ======================================== -->
+    <section class="slide" data-slide="5b">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Projeto Final: Como funciona</h2>
+            <ol class="steps">
+                <li class="reveal"><strong>Escolha um problema real</strong> do seu trabalho que possa ser otimizado</li>
+                <li class="reveal"><strong>Modele</strong> como PL, PI ou heurística, e resolva em Python</li>
+                <li class="reveal"><strong>Apresente</strong> ao vivo (10 min): contexto, modelo, resultados e insights</li>
+                <li class="reveal"><strong>Valide</strong> → mostre o resultado pra alguém do trabalho e traga o depoimento</li>
+            </ol>
+            <div class="feature-grid reveal" style="grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem); margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <div class="feature-card" style="border-color: var(--accent); padding: clamp(0.5rem, 1vw, 1rem);">
+                    <h3 style="color: var(--accent);">Slides</h3>
+                    <p>Apresentação 10 min</p>
+                </div>
+                <div class="feature-card" style="border-color: var(--green); padding: clamp(0.5rem, 1vw, 1rem);">
+                    <h3 style="color: var(--green);">Relatório</h3>
+                    <p>2-3 páginas</p>
+                </div>
+                <div class="feature-card" style="border-color: var(--amber); padding: clamp(0.5rem, 1vw, 1rem);">
+                    <h3 style="color: var(--amber);">Colab</h3>
+                    <p>Notebook Python</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 6C: RUBRICA
+         ======================================== -->
+    <section class="slide" data-slide="5c">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Rubrica: O que diferencia a nota</h2>
+            <div style="display: flex; flex-direction: column; gap: clamp(0.4rem, 0.8vh, 0.8rem);">
+                <div class="reveal" style="display: flex; align-items: center; gap: clamp(0.5rem, 1vw, 1rem); background: rgba(34,197,94,0.1); border-left: 4px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <span style="font-size: var(--h3-size); font-weight: 800; color: var(--green); min-width: 3.5rem;">9-10</span>
+                    <span style="font-size: var(--small-size);">Problema real, defende cada decisão, análise de sensibilidade, depoimento do trabalho, aponta limitações</span>
+                </div>
+                <div class="reveal" style="display: flex; align-items: center; gap: clamp(0.5rem, 1vw, 1rem); background: rgba(173,52,254,0.1); border-left: 4px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <span style="font-size: var(--h3-size); font-weight: 800; color: var(--accent); min-width: 3.5rem;">7-8</span>
+                    <span style="font-size: var(--small-size);">Problema bom, modelo correto, apresenta bem, responde perguntas mas não vai além</span>
+                </div>
+                <div class="reveal" style="display: flex; align-items: center; gap: clamp(0.5rem, 1vw, 1rem); background: rgba(245,158,11,0.1); border-left: 4px solid var(--amber); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <span style="font-size: var(--h3-size); font-weight: 800; color: var(--amber); min-width: 3.5rem;">5-6</span>
+                    <span style="font-size: var(--small-size);">Entregou mas trava nas perguntas, não sabe explicar o modelo</span>
+                </div>
+                <div class="reveal" style="display: flex; align-items: center; gap: clamp(0.5rem, 1vw, 1rem); background: rgba(239,68,68,0.1); border-left: 4px solid #EF4444; padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <span style="font-size: var(--h3-size); font-weight: 800; color: #EF4444; min-width: 3.5rem;">&lt; 5</span>
+                    <span style="font-size: var(--small-size);">Não entregou ou não consegue explicar nada</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 7: DIVISOR 01 — PESQUISA OPERACIONAL
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="6">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 01</p>
+            <h2 class="reveal glow">Pesquisa Operacional</h2>
+            <p class="reveal section-sub">Matemática para tomar decisões melhores</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 8: O QUE E PO
+         ======================================== -->
+    <section class="slide" data-slide="7">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">O que é Pesquisa Operacional?</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem); color: var(--text-muted);">Origem: Segunda Guerra Mundial, cientistas otimizando operações militares</p>
+            <p class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 1rem);">Usar matemática para tomar <span class="neon-line">decisões melhores</span></p>
+            <div class="feature-grid reveal">
+                <div class="feature-card">
+                    <h3>Uber</h3>
+                    <p>Rotas e preços em tempo real</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Amazon</h3>
+                    <p>Onde estocar cada produto</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Aéreas</h3>
+                    <p>Escala + pricing</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Hospitais</h3>
+                    <p>Escala, leitos, filas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 9: CICLO DE PO
+         ======================================== -->
+    <section class="slide" data-slide="8">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">O Ciclo da PO</h2>
+            <ol class="steps">
+                <li class="reveal">Identificar o problema real</li>
+                <li class="reveal"><strong>Modelar matematicamente</strong> → variáveis, objetivo, restrições</li>
+                <li class="reveal">Resolver com algoritmo ou ferramenta</li>
+                <li class="reveal">Interpretar e implementar na prática</li>
+            </ol>
+            <div class="highlight-box amber reveal">
+                O passo mais difícil no dia a dia? O passo 2, <strong>modelar</strong>.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 10: DIVISOR 02 — NOTACAO MATEMATICA
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="9">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 02</p>
+            <h2 class="reveal glow">Notação Matemática</h2>
+            <p class="reveal section-sub">O que vocês vão encontrar nos livros</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 11: FORMA MATRICIAL
+         ======================================== -->
+    <section class="slide" data-slide="10">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Forma Matricial</h2>
+            <div class="formula reveal">
+                Max Z = c<sup>T</sup>x &nbsp;&nbsp;&nbsp; s.a. Ax &le; b, &nbsp; x &ge; 0
+            </div>
+            <ul class="bullet-list" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <li class="reveal"><span class="tag">c</span> = custos &nbsp;&nbsp; <span class="tag">A</span> = coeficientes &nbsp;&nbsp; <span class="tag">b</span> = recursos &nbsp;&nbsp; <span class="tag">x</span> = variáveis</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 12: DIVISOR 03 — PROGRAMACAO LINEAR
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="11">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 03</p>
+            <h2 class="reveal glow">Programação Linear</h2>
+            <p class="reveal section-sub">Otimização onde tudo é linear</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 13: O QUE E PL
+         ======================================== -->
+    <section class="slide" data-slide="12">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">O que é Programação Linear?</h2>
+            <!-- Gráficos + descrições -->
+            <div class="reveal" style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 3vw, 3rem);">
+                <!-- LINEAR -->
+                <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.6rem, 1.2vw, 1.2rem); display: flex; flex-direction: column; align-items: center;">
+                    <svg viewBox="0 0 220 130" style="width: 90%; max-width: 320px; height: auto; margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);">
+                        <!-- Eixos -->
+                        <line x1="30" y1="110" x2="205" y2="110" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                        <line x1="30" y1="110" x2="30" y2="10" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                        <line x1="30" y1="80" x2="205" y2="80" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4"/>
+                        <line x1="30" y1="50" x2="205" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Reta -->
+                        <line x1="35" y1="100" x2="195" y2="18" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="35" cy="100" r="5" fill="#22C55E"/>
+                        <circle cx="115" cy="59" r="5" fill="#22C55E"/>
+                        <circle cx="195" cy="18" r="5" fill="#22C55E"/>
+                    </svg>
+                    <div class="formula" style="font-size: var(--body-size); color: var(--green); margin: 0; font-weight: 700;">Z = 5x + 3y</div>
+                    <p style="color: var(--green); font-size: var(--body-size); font-weight: 700; margin: clamp(0.2rem, 0.4vh, 0.4rem) 0 0;">Linear</p>
+                    <p style="color: var(--text-primary); font-size: var(--small-size); text-align: center; line-height: 1.4;">Dobrou o investimento? O retorno dobra. Relação <strong>proporcional</strong> e previsível. Solução ótima sempre num <strong>vértice</strong>.</p>
+                </div>
+                <!-- NÃO-LINEAR -->
+                <div style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: clamp(0.6rem, 1.2vw, 1.2rem); display: flex; flex-direction: column; align-items: center;">
+                    <svg viewBox="0 0 220 130" style="width: 90%; max-width: 320px; height: auto; margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);">
+                        <!-- Eixos -->
+                        <line x1="30" y1="110" x2="205" y2="110" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                        <line x1="30" y1="110" x2="30" y2="10" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                        <line x1="30" y1="80" x2="205" y2="80" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4"/>
+                        <line x1="30" y1="50" x2="205" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Curva -->
+                        <path d="M 35 105 C 70 103 95 95 120 75 C 145 50 170 25 200 15" fill="none" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="35" cy="105" r="5" fill="#EF4444"/>
+                        <circle cx="120" cy="75" r="5" fill="#EF4444"/>
+                        <circle cx="200" cy="15" r="5" fill="#EF4444"/>
+                    </svg>
+                    <div class="formula" style="font-size: var(--body-size); color: #EF4444; margin: 0; font-weight: 700;">Z = x² + sen(y)</div>
+                    <p style="color: #EF4444; font-size: var(--body-size); font-weight: 700; margin: clamp(0.2rem, 0.4vh, 0.4rem) 0 0;">Não-linear</p>
+                    <p style="color: var(--text-primary); font-size: var(--small-size); text-align: center; line-height: 1.4;">Dobrou o investimento? O retorno pode triplicar ou cair. Relação <strong>imprevisível</strong>. Solução ótima pode estar em qualquer ponto.</p>
+                </div>
+            </div>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.4rem, 0.8vh, 0.7rem);">
+                <strong>PL funciona quando:</strong> objetivo e restrições são proporcionais (lineares). Se dobrar a produção, dobra o custo e o lucro. Sem surpresas.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 13B: TRANSIÇÃO → VAMOS MODELAR
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="12b">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Mão na massa</p>
+            <h2 class="reveal glow">Vamos modelar!</h2>
+            <p class="reveal section-sub" style="max-width: 700px;">Vamos começar com problemas simples pra entender a mecânica. Primeiro a <strong>Padaria do Seu João</strong>, depois vocês resolvem um na mão. Aí sim a gente avança pra casos mais complexos.</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 13C: ROADMAP → PASSO A PASSO DA MODELAGEM
+         ======================================== -->
+    <section class="slide" data-slide="12c">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Roteiro: como resolver um problema de PL</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">Esse é o passo a passo que vamos seguir. Nas próximas aulas, cada um de vocês vai explicar um passo.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.8rem, 1.5vw, 1.5rem);">
+                <!-- Coluna esquerda: Modelagem -->
+                <div>
+                    <p class="reveal" style="color: var(--green); font-weight: 700; font-size: var(--body-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">Modelagem</p>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <span style="background: var(--green); color: #0F172A; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">1</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Entender o problema</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Ler, identificar o que é dado e o que se quer</p></div>
+                    </div>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <span style="background: var(--green); color: #0F172A; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">2</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Variáveis de decisão</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">O que eu controlo? x₁, x₂...</p></div>
+                    </div>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <span style="background: var(--green); color: #0F172A; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">3</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Função objetivo</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Max ou Min? Qual a fórmula do lucro/custo?</p></div>
+                    </div>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                        <span style="background: var(--green); color: #0F172A; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">4</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Restrições + não-negatividade</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Limites de recurso, capacidade, tempo</p></div>
+                    </div>
+                </div>
+                <!-- Coluna direita: Resolução -->
+                <div>
+                    <p class="reveal" style="color: var(--accent-light); font-weight: 700; font-size: var(--body-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">Resolução</p>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <span style="background: var(--accent); color: #fff; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">5</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Pontos nos eixos</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Zerar variáveis, achar onde a reta cruza</p></div>
+                    </div>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <span style="background: var(--accent); color: #fff; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">6</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Interseção das retas</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Resolver sistema pra achar os vértices</p></div>
+                    </div>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <span style="background: var(--accent); color: #fff; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">7</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Testar viabilidade</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Cada vértice respeita todas as restrições?</p></div>
+                    </div>
+                    <div class="reveal" style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                        <span style="background: var(--amber); color: #0F172A; font-weight: 800; font-size: var(--small-size); min-width: 1.8rem; height: 1.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;">8</span>
+                        <div><p style="font-size: var(--small-size); font-weight: 600;">Calcular Z em cada vértice</p><p style="font-size: clamp(0.7rem, 1.3vw, 0.95rem); color: var(--text-muted);">Plugar na função objetivo → o maior ganha</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 14: PROBLEMA DO SEU JOAO — TABELA
+         ======================================== -->
+    <section class="slide" data-slide="13">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Problema do Seu João</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);">Seu João tem uma padaria e faz pães e bolos.</p>
+            <table class="data-table reveal">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Lucro</th>
+                        <th>Farinha</th>
+                        <th>Tempo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pão</td>
+                        <td>R$ 2</td>
+                        <td>1 kg</td>
+                        <td>1 h</td>
+                    </tr>
+                    <tr>
+                        <td>Bolo</td>
+                        <td>R$ 5</td>
+                        <td>2 kg</td>
+                        <td>1 h</td>
+                    </tr>
+                    <tr class="row-highlight">
+                        <td><strong>Disponível</strong></td>
+                        <td>-</td>
+                        <td><strong>10 kg</strong></td>
+                        <td><strong>6 h</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box amber reveal">
+                Quantos pães e bolos produzir para <strong>maximizar o lucro</strong>?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 14B: PROMPT → MODELAGEM
+         ======================================== -->
+    <section class="slide" data-slide="14b">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Por onde a gente começa?</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.8rem, 1.5vw, 1.5rem); text-align: left;">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.6rem, 1.2vw, 1.2rem);">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--body-size); margin-bottom: 0.3rem;">1. Variáveis</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">O que o Seu João <strong>controla</strong>?</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">Quantas "coisas" ele decide?</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.6rem, 1.2vw, 1.2rem);">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--body-size); margin-bottom: 0.3rem;">2. Objetivo</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">O que ele quer <strong>maximizar</strong>?</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">Qual o lucro de cada produto?</p>
+                </div>
+                <div class="reveal" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: clamp(0.6rem, 1.2vw, 1.2rem);">
+                    <p style="color: var(--amber); font-weight: 700; font-size: var(--body-size); margin-bottom: 0.3rem;">3. Restrições</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">O que <strong>limita</strong> a produção?</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">Quais recursos são escassos?</p>
+                </div>
+            </div>
+            <div class="highlight-box reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem); text-align: left;">
+                Olhem a tabela do Seu João e me digam: o que são as variáveis?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 15: PASSO 1 — VARIAVEIS DE DECISAO
+         ======================================== -->
+    <section class="slide" data-slide="14">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 1 → Variáveis de Decisão</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.5rem, 1vh, 1rem);">&ldquo;O que o Seu João controla?&rdquo;</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2vw, 2rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Simplificado</p>
+                    <p style="font-size: var(--body-size);">Quantos pães produzir?</p>
+                    <p style="font-size: var(--body-size);">Quantos bolos produzir?</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Notação formal</p>
+                    <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>1</sub> = quantidade de pães</div>
+                    <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>2</sub> = quantidade de bolos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 16: PASSO 2 — FUNCAO OBJETIVO
+         ======================================== -->
+    <section class="slide" data-slide="15">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 2 → Função Objetivo</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);">&ldquo;O que ele quer maximizar?&rdquo;</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2vw, 2rem); margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Simplificado</p>
+                    <p style="font-size: var(--body-size);">Lucro = R$ 2 por pão + R$ 5 por bolo</p>
+                    <p style="font-size: var(--body-size);">Queremos o <strong>maior lucro possível</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Notação formal</p>
+                    <div class="formula" style="font-size: var(--body-size); margin: 0;">Max Z = 2x<sub>1</sub> + 5x<sub>2</sub></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 17: PASSO 3 — RESTRICOES
+         ======================================== -->
+    <section class="slide" data-slide="16">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 3 → Restrições</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2vw, 2rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Simplificado</p>
+                    <p style="font-size: var(--small-size);">Cada pão usa 1kg, cada bolo usa 2kg → máx 10kg de farinha</p>
+                    <p style="font-size: var(--small-size);">Cada produto usa 1h → máx 6h no forno</p>
+                    <p style="font-size: var(--small-size);">Não dá pra produzir quantidade negativa</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Notação formal</p>
+                    <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>1</sub> + 2x<sub>2</sub> &le; 10 <span style="color: var(--text-muted); font-size: var(--small-size);">(farinha)</span></div>
+                    <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>1</sub> + x<sub>2</sub> &le; 6 <span style="color: var(--text-muted); font-size: var(--small-size);">(tempo)</span></div>
+                    <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>1</sub>, x<sub>2</sub> &ge; 0</div>
+                </div>
+            </div>
+            <div class="highlight-box reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Não-negatividade é <strong>sempre</strong> obrigatória. Não dá para produzir &minus;3 pães.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 18: MODELO COMPLETO
+         ======================================== -->
+    <section class="slide" data-slide="17">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Modelo Completo</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2vw, 2rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Como a gente fala</p>
+                    <p style="font-size: var(--small-size);">Queremos o maior lucro possível</p>
+                    <p style="font-size: var(--small-size);">Lucro: R$ 2 por pão + R$ 5 por bolo</p>
+                    <p style="font-size: var(--small-size);">Limite: 10kg de farinha, 6h de forno</p>
+                    <p style="font-size: var(--small-size);">Não produzir negativo</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Notação formal</p>
+                    <pre class="formula" style="text-align: left; font-size: var(--small-size); line-height: 1.7; white-space: pre; margin: 0;">Max Z = 2x<sub>1</sub> + 5x<sub>2</sub>
+
+s.a.  x<sub>1</sub> + 2x<sub>2</sub> &le; 10
+      x<sub>1</sub> +  x<sub>2</sub> &le;  6
+      x<sub>1</sub>, x<sub>2</sub> &ge; 0</pre>
+                </div>
+            </div>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Isso é a modelagem. <strong>80% de PO</strong> é transformar o problema real em matemática.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 19: SEU JOAO EM NOTAÇÃO FORMAL
+         ======================================== -->
+    <section class="slide" data-slide="18">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Seu João → Notação Formal</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);">O mesmo problema, agora na linguagem que vocês vão encontrar nos livros e artigos.</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2vw, 2rem);">
+                <!-- Lado esquerdo: de onde vem cada pedaço -->
+                <div>
+                    <p class="reveal" style="color: var(--green); font-weight: 700; font-size: var(--body-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">De onde vem cada elemento</p>
+
+                    <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.4rem, 0.8vw, 0.8rem); border-radius: 8px; margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">
+                        <p style="font-size: var(--small-size);"><span style="color: var(--green); font-weight: 700;">c</span> = vetor de lucros (coeficientes do objetivo)</p>
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">R$ 2 por pão, R$ 5 por bolo → <strong>c = [2, 5]</strong></p>
+                    </div>
+
+                    <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.4rem, 0.8vw, 0.8rem); border-radius: 8px; margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">
+                        <p style="font-size: var(--small-size);"><span style="color: var(--accent-light); font-weight: 700;">A</span> = matriz de coeficientes das restrições</p>
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">Farinha: 1 pão + 2 bolos | Tempo: 1 pão + 1 bolo</p>
+                        <p style="font-size: var(--small-size);"><strong>A = [[1, 2], [1, 1]]</strong></p>
+                    </div>
+
+                    <div class="reveal" style="background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: clamp(0.4rem, 0.8vw, 0.8rem); border-radius: 8px;">
+                        <p style="font-size: var(--small-size);"><span style="color: var(--amber); font-weight: 700;">b</span> = vetor de limites (lado direito das restrições)</p>
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">10kg de farinha, 6h de forno → <strong>b = [10, 6]</strong></p>
+                    </div>
+                </div>
+
+                <!-- Lado direito: forma compacta -->
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <p class="reveal" style="color: var(--accent-light); font-weight: 700; font-size: var(--body-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">Forma compacta</p>
+
+                    <div class="reveal" style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.8rem, 1.5vw, 1.5rem); text-align: center;">
+                        <div class="formula" style="font-size: var(--h3-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.5rem);">Max Z = c<sup>T</sup>x</div>
+                        <div class="formula" style="font-size: var(--body-size); margin-bottom: clamp(0.2rem, 0.3vh, 0.3rem);">sujeito a:</div>
+                        <div class="formula" style="font-size: var(--body-size); margin-bottom: clamp(0.1rem, 0.2vh, 0.2rem);">Ax &le; b</div>
+                        <div class="formula" style="font-size: var(--body-size);">x &ge; 0</div>
+                    </div>
+
+                    <div class="highlight-box amber reveal" style="margin-top: clamp(0.4rem, 0.8vh, 0.6rem);">
+                        Mesma coisa, só que compacto. Com 100 variáveis, essa notação salva.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 19B: PROMPT → RESOLUÇÃO GRÁFICA
+         ======================================== -->
+    <section class="slide" data-slide="19b-prompt">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Temos o modelo. E agora?</h2>
+            <p class="reveal" style="color: var(--text-muted); font-size: var(--body-size); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Precisamos achar a <strong>solução ótima</strong>. Com 2 variáveis, dá pra resolver no gráfico.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem); text-align: left;">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Passo 5</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Achar os <strong>pontos</strong> onde cada reta cruza os eixos</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Passo 6</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Achar onde as retas se <strong>cruzam</strong> (sistema)</p>
+                </div>
+                <div class="reveal" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--amber); font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Passo 7</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Testar quais pontos são <strong>viáveis</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: #EF4444; font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Passo 8</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Calcular <strong>Z</strong> em cada vértice → o maior ganha</p>
+                </div>
+            </div>
+            <div class="highlight-box reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem); text-align: left;">
+                Vamos lá: peguem a restrição de farinha. Se x<sub>1</sub> = 0, quanto dá x<sub>2</sub>?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 20: PASSO 4 — PONTOS NOS EIXOS (restrição 1)
+         ======================================== -->
+    <section class="slide" data-slide="19">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 4 → Pontos nos Eixos</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);">Cada restrição vira uma reta no gráfico. Pra desenhar, achamos onde ela cruza os eixos.</p>
+
+            <!-- Restrição 1: Farinha -->
+            <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px; margin-bottom: clamp(0.4rem, 0.8vh, 0.7rem);">
+                <p style="color: var(--green); font-weight: 700; font-size: var(--body-size); margin-bottom: 0.3rem;">Restrição 1: Farinha → x<sub>1</sub> + 2x<sub>2</sub> &le; 10</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem);">
+                    <div class="reveal">
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">Se x<sub>1</sub> = 0 (zero pães):</p>
+                        <p style="font-size: var(--small-size);">0 + 2x<sub>2</sub> = 10 → <strong style="color: var(--green);">x<sub>2</sub> = 5</strong> → ponto <strong>(0, 5)</strong></p>
+                    </div>
+                    <div class="reveal">
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">Se x<sub>2</sub> = 0 (zero bolos):</p>
+                        <p style="font-size: var(--small-size);">x<sub>1</sub> + 0 = 10 → <strong style="color: var(--green);">x<sub>1</sub> = 10</strong> → ponto <strong>(10, 0)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restrição 2: Tempo -->
+            <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px; margin-bottom: clamp(0.4rem, 0.8vh, 0.7rem);">
+                <p style="color: var(--accent-light); font-weight: 700; font-size: var(--body-size); margin-bottom: 0.3rem;">Restrição 2: Tempo → x<sub>1</sub> + x<sub>2</sub> &le; 6</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem);">
+                    <div class="reveal">
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">Se x<sub>1</sub> = 0:</p>
+                        <p style="font-size: var(--small-size);">0 + x<sub>2</sub> = 6 → <strong style="color: var(--accent-light);">x<sub>2</sub> = 6</strong> → ponto <strong>(0, 6)</strong></p>
+                    </div>
+                    <div class="reveal">
+                        <p style="font-size: var(--small-size); color: var(--text-muted);">Se x<sub>2</sub> = 0:</p>
+                        <p style="font-size: var(--small-size);">x<sub>1</sub> + 0 = 6 → <strong style="color: var(--accent-light);">x<sub>1</sub> = 6</strong> → ponto <strong>(6, 0)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box amber reveal">
+                <strong>Lógica:</strong> zeramos uma variável por vez pra achar onde a reta toca cada eixo. Dois pontos → uma reta.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 20B: PASSO 4 — INTERSEÇÃO DAS RETAS
+         ======================================== -->
+    <section class="slide" data-slide="19b">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 4 → Interseção das Retas</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.3rem, 0.6vh, 0.5rem);">Onde as duas retas se cruzam? Resolvemos o sistema:</p>
+
+            <div class="reveal" style="background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px; margin-bottom: clamp(0.4rem, 0.8vh, 0.7rem);">
+                <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>1</sub> + 2x<sub>2</sub> = 10</div>
+                <div class="formula" style="font-size: var(--body-size); margin: 0;">x<sub>1</sub> + x<sub>2</sub> = 6</div>
+            </div>
+
+            <ol class="steps">
+                <li class="reveal">Subtraímos a 2ª da 1ª → <strong>x<sub>2</sub> = 4</strong></li>
+                <li class="reveal">Substituímos na 2ª → x<sub>1</sub> + 4 = 6 → <strong>x<sub>1</sub> = 2</strong></li>
+                <li class="reveal">Ponto de interseção → <strong style="color: var(--amber); font-size: var(--body-size);">(2, 4)</strong></li>
+            </ol>
+
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.3rem, 0.6vh, 0.5rem);">
+                Agora temos todos os <strong>vértices candidatos</strong>: (0, 0), (0, 5), (2, 4), (6, 0). Qual dá mais lucro?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 21: PASSO 5 — TESTAR VIABILIDADE
+         ======================================== -->
+    <section class="slide" data-slide="20">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 5 → Testar Viabilidade</h2>
+            <table class="data-table reveal">
+                <thead>
+                    <tr>
+                        <th>Ponto</th>
+                        <th>Farinha (&le;10)</th>
+                        <th>Tempo (&le;6)</th>
+                        <th>Viável?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>(0, 0)</td>
+                        <td>0 &#10003;</td>
+                        <td>0 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td>
+                    </tr>
+                    <tr>
+                        <td>(0, 5)</td>
+                        <td>10 &#10003;</td>
+                        <td>5 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td>
+                    </tr>
+                    <tr>
+                        <td>(2, 4)</td>
+                        <td>10 &#10003;</td>
+                        <td>6 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td>
+                    </tr>
+                    <tr>
+                        <td>(6, 0)</td>
+                        <td>6 &#10003;</td>
+                        <td>6 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td>
+                    </tr>
+                    <tr>
+                        <td>(10, 0)</td>
+                        <td>10 &#10003;</td>
+                        <td style="color: #EF4444;">10 &#10007;</td>
+                        <td style="color: #EF4444;">Não</td>
+                    </tr>
+                    <tr>
+                        <td>(0, 6)</td>
+                        <td style="color: #EF4444;">12 &#10007;</td>
+                        <td>6 &#10003;</td>
+                        <td style="color: #EF4444;">Não</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 22: PASSO 6 — CALCULAR Z
+         ======================================== -->
+    <section class="slide" data-slide="21">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Passo 6 → Calcular Z nos Vértices</h2>
+            <table class="data-table reveal">
+                <thead>
+                    <tr>
+                        <th>Vértice</th>
+                        <th>x<sub>1</sub></th>
+                        <th>x<sub>2</sub></th>
+                        <th>Z = 2x<sub>1</sub> + 5x<sub>2</sub></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>R$ 0</td>
+                    </tr>
+                    <tr class="row-highlight" style="background: rgba(34, 197, 94, 0.15);">
+                        <td><strong>B</strong></td>
+                        <td><strong>0</strong></td>
+                        <td><strong>5</strong></td>
+                        <td><strong style="color: var(--green);">R$ 25 &#11088;</strong></td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>2</td>
+                        <td>4</td>
+                        <td>R$ 24</td>
+                    </tr>
+                    <tr>
+                        <td>D</td>
+                        <td>6</td>
+                        <td>0</td>
+                        <td>R$ 12</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Resposta: <strong>0 pães e 5 bolos</strong> &rarr; Lucro máximo = <strong>R$ 25</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 23: DIVISOR 04 — DESAFIO NA MAO
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="22">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 04</p>
+            <h2 class="reveal glow">Desafio na Mão</h2>
+            <p class="reveal section-sub">Agora é com vocês</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 24: FABRICA DO CARLOS
+         ======================================== -->
+    <section class="slide" data-slide="23">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Fábrica do Carlos</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);">Carlos produz mesas e estantes.</p>
+            <table class="data-table reveal">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Lucro</th>
+                        <th>Madeira</th>
+                        <th>Montagem</th>
+                        <th>Pintura</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mesa</td>
+                        <td>R$ 5</td>
+                        <td>2 m&sup2;</td>
+                        <td>1 h</td>
+                        <td>1 h</td>
+                    </tr>
+                    <tr>
+                        <td>Estante</td>
+                        <td>R$ 3</td>
+                        <td>1 m&sup2;</td>
+                        <td>1 h</td>
+                        <td>2 h</td>
+                    </tr>
+                    <tr class="row-highlight">
+                        <td><strong>Disponível</strong></td>
+                        <td>-</td>
+                        <td><strong>12 m&sup2;</strong></td>
+                        <td><strong>8 h</strong></td>
+                        <td><strong>10 h</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <strong>20 minutos.</strong> 3 restrições → mais vértices para testar.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 24B: CARLOS — PASSO A PASSO
+         ======================================== -->
+    <section class="slide" data-slide="23b">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Fábrica do Carlos → Roteiro</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.8rem, 1.5vw, 1.5rem);">
+                <div>
+                    <p class="reveal" style="color: var(--green); font-weight: 700; font-size: var(--body-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">Modelagem</p>
+                    <ol class="steps" style="gap: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <li class="reveal" style="font-size: var(--small-size);">Variáveis: x<sub>1</sub> = mesas, x<sub>2</sub> = estantes</li>
+                        <li class="reveal" style="font-size: var(--small-size);">Objetivo: Max Z = 5x<sub>1</sub> + 3x<sub>2</sub></li>
+                        <li class="reveal" style="font-size: var(--small-size);">Restrições: madeira, montagem, pintura + não-negatividade</li>
+                    </ol>
+                </div>
+                <div>
+                    <p class="reveal" style="color: var(--accent-light); font-weight: 700; font-size: var(--body-size); margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">Resolução</p>
+                    <ol class="steps" start="4" style="gap: clamp(0.2rem, 0.4vh, 0.3rem);">
+                        <li class="reveal" style="font-size: var(--small-size);">Pontos nos eixos (3 retas → 6 pontos)</li>
+                        <li class="reveal" style="font-size: var(--small-size);">Interseções entre as retas (3 sistemas)</li>
+                        <li class="reveal" style="font-size: var(--small-size);">Testar viabilidade de cada vértice</li>
+                        <li class="reveal" style="font-size: var(--small-size);">Calcular Z → achar o ótimo</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                Mesmo roteiro do Seu João, só que agora com <strong>3 restrições</strong>. Mais retas, mais vértices, mais trabalho.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 24C: CARLOS — MODELAGEM
+         ======================================== -->
+    <section class="slide" data-slide="23c">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Carlos → Modelagem</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2vw, 2rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Simplificado</p>
+                    <p style="font-size: var(--small-size);">Variáveis: quantas mesas? quantas estantes?</p>
+                    <p style="font-size: var(--small-size);">Lucro: R$ 5 por mesa + R$ 3 por estante</p>
+                    <p style="font-size: var(--small-size);">Limites: 12m² madeira, 8h montagem, 10h pintura</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 1rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-size: var(--small-size); font-weight: 600; margin-bottom: 0.3rem;">Notação formal</p>
+                    <pre class="formula" style="text-align: left; font-size: var(--small-size); line-height: 1.6; white-space: pre; margin: 0;">Max Z = 5x<sub>1</sub> + 3x<sub>2</sub>
+
+s.a.  2x<sub>1</sub> +  x<sub>2</sub> &le; 12  (madeira)
+       x<sub>1</sub> +  x<sub>2</sub> &le;  8  (montagem)
+       x<sub>1</sub> + 2x<sub>2</sub> &le; 10  (pintura)
+       x<sub>1</sub>, x<sub>2</sub> &ge; 0</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 24D: CARLOS — PONTOS NOS EIXOS
+         ======================================== -->
+    <section class="slide" data-slide="23d">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Carlos → Pontos nos Eixos</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: clamp(0.5rem, 1vw, 0.8rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--small-size);">Madeira</p>
+                    <p style="font-size: var(--small-size);">2x<sub>1</sub> + x<sub>2</sub> = 12</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub>=0 → <strong>(0, 12)</strong></p>
+                    <p style="font-size: var(--small-size);">x<sub>2</sub>=0 → <strong>(6, 0)</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border-left: 3px solid var(--accent); padding: clamp(0.5rem, 1vw, 0.8rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size);">Montagem</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub> + x<sub>2</sub> = 8</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub>=0 → <strong>(0, 8)</strong></p>
+                    <p style="font-size: var(--small-size);">x<sub>2</sub>=0 → <strong>(8, 0)</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: clamp(0.5rem, 1vw, 0.8rem); border-radius: 8px;">
+                    <p style="color: var(--amber); font-weight: 700; font-size: var(--small-size);">Pintura</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub> + 2x<sub>2</sub> = 10</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub>=0 → <strong>(0, 5)</strong></p>
+                    <p style="font-size: var(--small-size);">x<sub>2</sub>=0 → <strong>(10, 0)</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 24E: CARLOS — INTERSEÇÕES
+         ======================================== -->
+    <section class="slide" data-slide="23e">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Carlos → Interseções</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); padding: clamp(0.5rem, 1vw, 0.8rem); border-radius: 8px;">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Madeira ∩ Montagem</p>
+                    <p style="font-size: var(--small-size);">2x<sub>1</sub> + x<sub>2</sub> = 12</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub> + x<sub>2</sub> = 8</p>
+                    <p style="font-size: var(--small-size);">→ x<sub>1</sub> = 4, x<sub>2</sub> = 4 → <strong>(4, 4)</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); padding: clamp(0.5rem, 1vw, 0.8rem); border-radius: 8px;">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Madeira ∩ Pintura</p>
+                    <p style="font-size: var(--small-size);">2x<sub>1</sub> + x<sub>2</sub> = 12</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub> + 2x<sub>2</sub> = 10</p>
+                    <p style="font-size: var(--small-size);">→ x<sub>1</sub> ≈ 4.67, x<sub>2</sub> ≈ 2.67</p>
+                </div>
+                <div class="reveal" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); padding: clamp(0.5rem, 1vw, 0.8rem); border-radius: 8px;">
+                    <p style="color: var(--amber); font-weight: 700; font-size: var(--small-size); margin-bottom: 0.2rem;">Montagem ∩ Pintura</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub> + x<sub>2</sub> = 8</p>
+                    <p style="font-size: var(--small-size);">x<sub>1</sub> + 2x<sub>2</sub> = 10</p>
+                    <p style="font-size: var(--small-size);">→ x<sub>1</sub> = 6, x<sub>2</sub> = 2 → <strong>(6, 2)</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 24F: CARLOS — VIABILIDADE + Z
+         ======================================== -->
+    <section class="slide" data-slide="23f">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Carlos → Testar e Calcular Z</h2>
+            <table class="data-table reveal">
+                <thead>
+                    <tr>
+                        <th>Vértice</th>
+                        <th>Madeira (&le;12)</th>
+                        <th>Montagem (&le;8)</th>
+                        <th>Pintura (&le;10)</th>
+                        <th>Viável?</th>
+                        <th>Z = 5x<sub>1</sub>+3x<sub>2</sub></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>(0, 0)</td><td>0 &#10003;</td><td>0 &#10003;</td><td>0 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td><td>0</td>
+                    </tr>
+                    <tr>
+                        <td>(0, 5)</td><td>5 &#10003;</td><td>5 &#10003;</td><td>10 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td><td>15</td>
+                    </tr>
+                    <tr>
+                        <td>(4, 4)</td><td>12 &#10003;</td><td>8 &#10003;</td><td>12 &#10007;</td>
+                        <td style="color: #EF4444;">Não</td><td>-</td>
+                    </tr>
+                    <tr>
+                        <td>(6, 0)</td><td>12 &#10003;</td><td>6 &#10003;</td><td>6 &#10003;</td>
+                        <td style="color: var(--green);">Sim</td><td>30</td>
+                    </tr>
+                    <tr class="row-highlight">
+                        <td><strong>(6, 2)</strong></td><td>14 &#10007;</td><td>8 &#10003;</td><td>10 &#10003;</td>
+                        <td style="color: #EF4444;">Não</td><td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.4rem, 0.8vh, 0.6rem);">
+                <strong>Ótimo: (6, 0)</strong> → 6 mesas, 0 estantes, lucro = R$ 30. Mas... faz sentido não produzir estante nenhuma?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 25: DIVISOR 05 — METODO SIMPLEX
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="24">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 05</p>
+            <h2 class="reveal glow">Método Simplex</h2>
+            <p class="reveal section-sub">Solução algébrica → funciona com qualquer número de variáveis</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 26: POR QUE SIMPLEX
+         ======================================== -->
+    <section class="slide" data-slide="25">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Por que Simplex?</h2>
+            <ul class="bullet-list">
+                <li class="reveal">Gráfico só funciona com <strong>2 variáveis</strong>. Problemas reais têm centenas.</li>
+                <li class="reveal">Simplex faz a mesma coisa, pula de vértice em vértice, <span class="neon-line">algebricamente</span>.</li>
+                <li class="reveal">George Dantzig, 1947. Um dos algoritmos mais importantes da história.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SIMPLEX ROADMAP
+         ======================================== -->
+    <section class="slide" data-slide="26b-roadmap">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Simplex: qual o plano?</h2>
+            <p class="reveal" style="color: var(--text-muted); font-size: var(--body-size); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Vamos resolver o mesmo problema do Seu João, agora com Simplex.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem); text-align: left; margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--small-size);">0. Forma padrão</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Transformar &le; em = com variáveis de <strong>folga</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--small-size);">1. Tableau inicial</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Montar a tabela com todas as variáveis</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size);">2. Quem entra?</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Mais <strong>negativo</strong> na linha Z</p>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem); text-align: left;">
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size);">3. Quem sai?</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Teste da razão: <strong>menor b &divide; coluna</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--amber); font-weight: 700; font-size: var(--small-size);">4. Pivotear</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Operações de linha pra <strong>zerar a coluna</strong></p>
+                </div>
+                <div class="reveal" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: #EF4444; font-weight: 700; font-size: var(--small-size);">5. É ótimo?</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Tem negativo na linha Z? Se sim, <strong>repete</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         O QUE FAZER: PASSO 0 — FORMA PADRÃO
+         ======================================== -->
+    <section class="slide" data-slide="s-p0-oqf">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <p class="reveal section-number" style="color: var(--green);">Passo 0</p>
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">O que fazer? → Forma Padrão</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-muted); margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">O Simplex não trabalha com &le;. Precisa de <strong style="color: var(--text-primary);">=</strong></p>
+            <div class="highlight-box green reveal" style="max-width: 600px; margin: 0 auto; margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <strong>Como?</strong> Adicionar uma variável de <strong>folga</strong> em cada restrição.<br>
+                Folga = quanto do recurso <strong>sobra</strong>.
+            </div>
+            <div class="reveal" style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem); max-width: 500px; margin: 0 auto;">
+                <p style="font-size: var(--body-size); color: var(--text-muted);">Exemplo: &nbsp; x<sub>1</sub> + 2x<sub>2</sub> &le; 10</p>
+                <p style="font-size: var(--body-size); color: var(--text-primary); margin-top: 0.3rem;">Vira: &nbsp; x<sub>1</sub> + 2x<sub>2</sub> + <strong style="color: var(--green);">x<sub>3</sub></strong> = 10</p>
+            </div>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.8rem, 1.5vh, 1.2rem);">
+                Façam no caderno: coloquem as 2 restrições do Seu João na forma padrão.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: PASSO 0 — FORMA PADRÃO
+         ======================================== -->
+    <section class="slide" data-slide="s-p0-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number" style="color: var(--green);">Passo 0 → Solução</p>
+            <h2 class="reveal">Forma Padrão</h2>
+            <div class="formula reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                x<sub>1</sub> + 2x<sub>2</sub> + <span style="color: var(--green);">x<sub>3</sub></span> = 10 &nbsp;&nbsp; <span style="color: var(--text-muted); font-size: var(--small-size);">(x<sub>3</sub> = folga farinha)</span>
+            </div>
+            <div class="formula reveal" style="margin-top: clamp(0.4rem, 0.8vh, 0.6rem);">
+                x<sub>1</sub> + x<sub>2</sub> + <span style="color: var(--green);">x<sub>4</sub></span> = 6 &nbsp;&nbsp; <span style="color: var(--text-muted); font-size: var(--small-size);">(x<sub>4</sub> = folga tempo)</span>
+            </div>
+            <div class="highlight-box reveal" style="margin-top: clamp(0.8rem, 1.5vh, 1.2rem);">
+                Se x<sub>1</sub>=0, x<sub>2</sub>=0 → x<sub>3</sub>=10 (sobra toda farinha), x<sub>4</sub>=6 (sobra todo tempo)
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         O QUE FAZER: PASSO 1 — TABLEAU INICIAL
+         ======================================== -->
+    <section class="slide" data-slide="s-p1-oqf">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <p class="reveal section-number" style="color: var(--green);">Passo 1</p>
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">O que fazer? → Montar o Tableau</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-muted); margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">Pegar os <strong style="color: var(--text-primary);">coeficientes</strong> de cada equação e jogar numa tabela.</p>
+            <div class="highlight-box green reveal" style="max-width: 600px; margin: 0 auto; margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <strong>Cabeçalho:</strong> Base | x<sub>1</sub> | x<sub>2</sub> | x<sub>3</sub> | x<sub>4</sub> | b<br>
+                <strong>Base inicial:</strong> as variáveis de folga (x<sub>3</sub>, x<sub>4</sub>)<br>
+                <strong>Linha Z:</strong> coeficientes com sinal trocado (&minus;2, &minus;5)
+            </div>
+            <div class="highlight-box amber reveal">
+                Montem o tableau no caderno. Uma linha por equação + linha Z embaixo.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: PASSO 1 — TABLEAU INICIAL
+         ======================================== -->
+    <section class="slide" data-slide="s-p1-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number" style="color: var(--green);">Passo 1 → Solução</p>
+            <h2 class="reveal">Tableau Inicial</h2>
+            <table class="data-table reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <thead>
+                    <tr>
+                        <th>Base</th>
+                        <th>x<sub>1</sub></th>
+                        <th>x<sub>2</sub></th>
+                        <th>x<sub>3</sub></th>
+                        <th>x<sub>4</sub></th>
+                        <th>b</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>x<sub>3</sub></td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td>x<sub>4</sub></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>6</td>
+                    </tr>
+                    <tr style="border-top: 2px solid var(--accent); font-weight: 700;">
+                        <td><strong>Z</strong></td>
+                        <td>&minus;2</td>
+                        <td>&minus;5</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="bullet-list" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <li class="reveal">Básicas: x<sub>3</sub>=10, x<sub>4</sub>=6 → Não básicas: x<sub>1</sub>=0, x<sub>2</sub>=0 → Z=0</li>
+                <li class="reveal">Traduzindo: não produz nada, sobra tudo, lucro zero.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ========================================
+         O QUE FAZER: PASSO 2 — QUEM ENTRA
+         ======================================== -->
+    <section class="slide" data-slide="s-p2-oqf">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <p class="reveal section-number" style="color: var(--accent-light);">Passo 2</p>
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">O que fazer? → Quem ENTRA?</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-muted); margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">Olhem a <strong style="color: var(--text-primary);">linha Z</strong> do tableau que vocês montaram.</p>
+            <div class="highlight-box green reveal" style="max-width: 600px; margin: 0 auto; margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <strong>Regra:</strong> valor negativo na linha Z = dá pra melhorar o lucro.<br>
+                O <strong>mais negativo</strong> é o que mais melhora → ele entra.
+            </div>
+            <div class="highlight-box amber reveal">
+                Qual variável entra? x<sub>1</sub> (&minus;2) ou x<sub>2</sub> (&minus;5)?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: PASSO 2 — QUEM ENTRA
+         ======================================== -->
+    <section class="slide" data-slide="s-p2-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number" style="color: var(--accent-light);">Passo 2 → Solução</p>
+            <h2 class="reveal">Quem ENTRA na base?</h2>
+            <ul class="bullet-list" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <li class="reveal">Linha Z: &minus;2 e &minus;5</li>
+                <li class="reveal">Mais negativo = <strong style="color: var(--green);">&minus;5</strong> (coluna x<sub>2</sub>)</li>
+                <li class="reveal">x<sub>2</sub> <span class="neon-line">entra na base</span>! (produzir bolo é mais lucrativo)</li>
+            </ul>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.8rem, 1.5vh, 1.2rem);">
+                Coluna pivô = <strong>x<sub>2</sub></strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         O QUE FAZER: PASSO 3 — QUEM SAI
+         ======================================== -->
+    <section class="slide" data-slide="s-p3-oqf">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <p class="reveal section-number" style="color: var(--accent-light);">Passo 3</p>
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">O que fazer? → Quem SAI?</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-muted); margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">Teste da <strong style="color: var(--text-primary);">razão mínima</strong>: divide b pelo valor na coluna pivô.</p>
+            <div class="highlight-box green reveal" style="max-width: 600px; margin: 0 auto; margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <strong>Regra:</strong> quem tem a <strong>menor razão</strong> (b &divide; coluna pivô) sai.<br>
+                Só valores <strong>positivos</strong> entram no teste.
+            </div>
+            <div class="highlight-box amber reveal">
+                Façam: 10 &divide; ? e 6 &divide; ? → Qual é menor?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: PASSO 3 — QUEM SAI
+         ======================================== -->
+    <section class="slide" data-slide="s-p3-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number" style="color: var(--accent-light);">Passo 3 → Solução</p>
+            <h2 class="reveal">Quem SAI da base?</h2>
+            <table class="data-table reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <thead>
+                    <tr>
+                        <th>Base</th>
+                        <th>x<sub>2</sub></th>
+                        <th>b</th>
+                        <th>Razão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: rgba(173, 52, 254, 0.1);">
+                        <td>x<sub>3</sub></td>
+                        <td>2</td>
+                        <td>10</td>
+                        <td><strong style="color: var(--accent-light);">10/2 = 5 &larr; menor</strong></td>
+                    </tr>
+                    <tr>
+                        <td>x<sub>4</sub></td>
+                        <td>1</td>
+                        <td>6</td>
+                        <td>6/1 = 6</td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="bullet-list" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                <li class="reveal">Menor razão = 5 → <strong>x<sub>3</sub> sai!</strong></li>
+                <li class="reveal">Pivô = <strong style="color: #EF4444;">2</strong> (cruzamento coluna x<sub>2</sub> &times; linha x<sub>3</sub>)</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ========================================
+         O QUE FAZER: PASSO 4 — PIVOTEAR
+         ======================================== -->
+    <section class="slide" data-slide="s-p4-oqf">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <p class="reveal section-number" style="color: var(--amber);">Passo 4</p>
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">O que fazer? → Pivotear</h2>
+            <!-- Tableau visual com pivô destacado -->
+            <div class="reveal" style="display: inline-block; position: relative; margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">
+                <!-- Seta coluna pivô -->
+                <div style="position: absolute; top: clamp(-1.8rem, -3vh, -1.2rem); left: 0; right: 0; text-align: center;">
+                    <span style="position: relative; left: clamp(-1.5rem, -2vw, -1rem); color: var(--accent-light); font-size: clamp(0.7rem, 1.3vw, 0.9rem); font-weight: 700;">coluna pivô ↓</span>
+                </div>
+                <table class="data-table" style="font-size: clamp(0.8rem, 1.5vw, 1.1rem);">
+                    <thead>
+                        <tr>
+                            <th>Base</th>
+                            <th>x<sub>1</sub></th>
+                            <th style="background: rgba(173,52,254,0.15); color: var(--accent-light);">x<sub>2</sub></th>
+                            <th>x<sub>3</sub></th>
+                            <th>x<sub>4</sub></th>
+                            <th>b</th>
+                            <th style="border: none; background: none;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: rgba(245,158,11,0.08);">
+                            <td style="color: var(--amber); font-weight: 700;">x<sub>3</sub></td>
+                            <td>1</td>
+                            <td style="background: rgba(173,52,254,0.15); position: relative;">
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: clamp(1.8rem, 3vw, 2.4rem); height: clamp(1.8rem, 3vw, 2.4rem); border: 3px solid #EF4444; border-radius: 50%; color: #EF4444; font-weight: 900;">2</span>
+                            </td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>10</td>
+                            <td style="border: none; background: none; color: var(--amber); font-weight: 700; font-size: clamp(0.7rem, 1.3vw, 0.9rem); padding-left: 0.5rem;">← linha pivô</td>
+                        </tr>
+                        <tr>
+                            <td>x<sub>4</sub></td>
+                            <td>1</td>
+                            <td style="background: rgba(173,52,254,0.15);">1</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>6</td>
+                            <td style="border: none; background: none;"></td>
+                        </tr>
+                        <tr style="border-top: 2px solid var(--accent); font-weight: 700;">
+                            <td><strong>Z</strong></td>
+                            <td>&minus;2</td>
+                            <td style="background: rgba(173,52,254,0.15);">&minus;5</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td style="border: none; background: none;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="reveal" style="font-size: var(--small-size); color: var(--text-muted); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Objetivo: fazer a coluna x<sub>2</sub> ficar com <strong style="color: var(--text-primary);">1</strong> na linha pivô e <strong style="color: var(--text-primary);">0</strong> nas outras.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem); max-width: 600px; margin: 0 auto; margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 0.8rem);">
+                    <p style="color: var(--green); font-weight: 700; font-size: var(--small-size);">Primeiro</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Dividir a linha pivô pelo pivô (2)</p>
+                </div>
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 0.8rem);">
+                    <p style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size);">Depois</p>
+                    <p style="font-size: clamp(0.75rem, 1.4vw, 1rem); color: var(--text-muted);">Zerar x<sub>2</sub> nas outras linhas</p>
+                </div>
+            </div>
+            <div class="highlight-box amber reveal">
+                Façam as 3 operações no caderno. Pivô = 2.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: PASSO 4 — PIVOTEAR
+         ======================================== -->
+    <section class="slide" data-slide="s-p4-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number" style="color: var(--amber);">Passo 4 → Solução</p>
+            <h2 class="reveal">Pivotear</h2>
+            <div class="reveal" style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 8px; padding: clamp(0.4rem, 0.8vw, 0.6rem); margin-bottom: clamp(0.4rem, 0.8vh, 0.6rem); font-size: var(--small-size);">
+                <strong style="color: var(--accent-light);">Por que zerar?</strong> Cada variável na base precisa aparecer em <strong>uma única linha</strong>. Zeramos a coluna pra isolar x<sub>2</sub> na sua linha → assim lemos o valor direto no b.
+            </div>
+            <div class="reveal" style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 8px; padding: clamp(0.4rem, 0.8vw, 0.6rem); margin-bottom: clamp(0.5rem, 1vh, 0.8rem); font-size: var(--small-size);">
+                <strong style="color: var(--green);">Fórmula:</strong> &nbsp; Nova linha = Linha antiga &minus; (valor na coluna pivô) &times; Nova linha pivô
+            </div>
+            <ul class="bullet-list">
+                <li class="reveal"><span class="tag">4a</span> Dividir linha pivô por 2:
+                    <div class="formula" style="font-size: var(--small-size); margin-top: 0.3rem;">[1, 2, 1, 0, 10] &divide; 2 = [&frac12;, 1, &frac12;, 0, 5]</div>
+                </li>
+                <li class="reveal"><span class="tag">4b</span> Zerar x<sub>2</sub> na linha x<sub>4</sub> <span style="color: var(--text-muted);">(valor = 1)</span>:
+                    <div class="formula" style="font-size: var(--small-size); margin-top: 0.3rem;">[1, 1, 0, 1, 6] &minus; 1&times;[&frac12;, 1, &frac12;, 0, 5] = [&frac12;, 0, &minus;&frac12;, 1, 1]</div>
+                </li>
+                <li class="reveal"><span class="tag">4c</span> Zerar x<sub>2</sub> na linha Z <span style="color: var(--text-muted);">(valor = &minus;5)</span>:
+                    <div class="formula" style="font-size: var(--small-size); margin-top: 0.3rem;">[&minus;2, &minus;5, 0, 0, 0] &minus; (&minus;5)&times;[&frac12;, 1, &frac12;, 0, 5] = [&frac12;, 0, 5/2, 0, 25]</div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ========================================
+         O QUE FAZER: PASSO 5 — É ÓTIMO?
+         ======================================== -->
+    <section class="slide" data-slide="s-p5-oqf">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content" style="text-align: center;">
+            <p class="reveal section-number" style="color: #EF4444;">Passo 5</p>
+            <h2 class="reveal" style="margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">O que fazer? → É ótimo?</h2>
+            <p class="reveal" style="font-size: var(--body-size); color: var(--text-muted); margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">Montem o <strong style="color: var(--text-primary);">novo tableau</strong> com os resultados do pivoteamento.</p>
+            <div class="highlight-box green reveal" style="max-width: 600px; margin: 0 auto; margin-bottom: clamp(0.8rem, 1.5vh, 1.2rem);">
+                <strong>Regra:</strong> olhem a linha Z do novo tableau.<br>
+                Tem algum valor <strong>negativo</strong>? Se não → ótimo encontrado!
+            </div>
+            <div class="highlight-box amber reveal">
+                Montem o novo tableau e me digam: a solução é ótima?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: PASSO 5 — É ÓTIMO?
+         ======================================== -->
+    <section class="slide" data-slide="s-p5-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number" style="color: #EF4444;">Passo 5 → Solução</p>
+            <h2 class="reveal">É ótimo?</h2>
+            <table class="data-table reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <thead>
+                    <tr>
+                        <th>Base</th>
+                        <th>x<sub>1</sub></th>
+                        <th>x<sub>2</sub></th>
+                        <th>x<sub>3</sub></th>
+                        <th>x<sub>4</sub></th>
+                        <th>b</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>x<sub>2</sub></td>
+                        <td>&frac12;</td>
+                        <td>1</td>
+                        <td>&frac12;</td>
+                        <td>0</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>x<sub>4</sub></td>
+                        <td>&frac12;</td>
+                        <td>0</td>
+                        <td>&minus;&frac12;</td>
+                        <td>1</td>
+                        <td>1</td>
+                    </tr>
+                    <tr style="border-top: 2px solid var(--green); font-weight: 700;">
+                        <td><strong>Z</strong></td>
+                        <td style="color: var(--green);">+&frac12;</td>
+                        <td>0</td>
+                        <td style="color: var(--green);">+5/2</td>
+                        <td>0</td>
+                        <td><strong style="color: var(--green);">25</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Nenhum valor negativo na linha Z → não dá pra melhorar!<br>
+                x<sub>1</sub>=0, x<sub>2</sub>=5, <strong>Z = R$ 25</strong>. Mesmo resultado do gráfico!
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SIMPLEX RESUMO
+         ======================================== -->
+    <section class="slide" data-slide="s-resumo">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Simplex : Resumo</h2>
+            <ol class="steps" style="counter-reset: step -1;">
+                <li class="reveal"><strong>Forma padrão</strong> → adicionar variáveis de folga</li>
+                <li class="reveal"><strong>Tableau inicial</strong> → montar a tabela</li>
+                <li class="reveal"><strong>Quem entra?</strong> → mais negativo na linha Z</li>
+                <li class="reveal"><strong>Quem sai?</strong> → teste da razão (menor b &divide; coluna)</li>
+                <li class="reveal"><strong>Pivotear</strong> → zerar a coluna com operações de linha</li>
+                <li class="reveal"><strong>Repetir</strong> → até não ter negativo na linha Z</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ========================================
+         DIVISOR: HANDS-ON PYTHON
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="35">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 06</p>
+            <h2 class="reveal glow">Hands-on Python</h2>
+            <p class="reveal section-sub">Abram o Google Colab</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         BIBLIOTECAS PYTHON PARA OTIMIZAÇÃO
+         ======================================== -->
+    <section class="slide" data-slide="py-libs">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Ferramentas que vamos usar</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(0.5rem, 1vw, 1rem); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">
+                <div class="reveal" style="background: rgba(173,52,254,0.08); border: 1px solid rgba(173,52,254,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--accent-light); font-weight: 800; font-size: clamp(1rem, 2vw, 1.4rem); margin-bottom: 0.3rem;">PuLP</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">Modelar e resolver Programação Linear e Inteira</p>
+                    <p style="font-size: clamp(0.65rem, 1.1vw, 0.8rem); color: var(--green); margin-top: 0.3rem;">Aulas 1 e 2</p>
+                </div>
+                <div class="reveal" style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--green); font-weight: 800; font-size: clamp(1rem, 2vw, 1.4rem); margin-bottom: 0.3rem;">OR-Tools</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">Biblioteca do Google para otimização combinatória</p>
+                    <p style="font-size: clamp(0.65rem, 1.1vw, 0.8rem); color: var(--green); margin-top: 0.3rem;">Aula 2</p>
+                </div>
+                <div class="reveal" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: clamp(0.5rem, 1vw, 1rem);">
+                    <p style="color: var(--amber); font-weight: 800; font-size: clamp(1rem, 2vw, 1.4rem); margin-bottom: 0.3rem;">Optuna</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted);">Tuning de hiperparâmetros com metaheurísticas</p>
+                    <p style="font-size: clamp(0.65rem, 1.1vw, 0.8rem); color: var(--green); margin-top: 0.3rem;">Aula 3</p>
+                </div>
+            </div>
+            <div class="highlight-box reveal" style="font-size: var(--small-size);">
+                Todas rodam no <strong>Google Colab</strong> → sem instalar nada na máquina.
+                <br>PuLP: <code style="color: var(--accent-light);">!pip install pulp</code>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         COMO USAR O PULP — ANALOGIA COM O MODELO
+         ======================================== -->
+    <section class="slide" data-slide="py-como">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">PuLP → mesma lógica do modelo</h2>
+            <p class="reveal" style="color: var(--text-muted); font-size: var(--small-size); margin-bottom: clamp(0.5rem, 1vh, 0.8rem);">Cada etapa da modelagem vira uma linha de código:</p>
+            <!-- Header row -->
+            <div style="display: grid; grid-template-columns: 1fr 2rem 1fr; gap: 0; align-items: center; margin-bottom: clamp(0.3rem, 0.5vh, 0.4rem);">
+                <p class="reveal" style="color: var(--green); font-weight: 700; font-size: var(--small-size); text-align: center;">Modelo na mão</p>
+                <p></p>
+                <p class="reveal" style="color: var(--accent-light); font-weight: 700; font-size: var(--small-size); text-align: center;">Código em PuLP</p>
+            </div>
+            <!-- Row 1 -->
+            <div class="reveal" style="display: grid; grid-template-columns: 1fr 2rem 1fr; gap: 0; align-items: center; margin-bottom: clamp(0.25rem, 0.4vh, 0.35rem);">
+                <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem); font-size: clamp(0.7rem, 1.2vw, 0.9rem);">
+                    1. Criar o problema
+                </div>
+                <p style="color: var(--accent-light); font-size: clamp(0.9rem, 1.5vw, 1.2rem); text-align: center;">→</p>
+                <div style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem);">
+                    <code style="font-size: clamp(0.65rem, 1.1vw, 0.85rem); color: var(--accent-light);">prob = LpProblem("nome", LpMaximize)</code>
+                </div>
+            </div>
+            <!-- Row 2 -->
+            <div class="reveal" style="display: grid; grid-template-columns: 1fr 2rem 1fr; gap: 0; align-items: center; margin-bottom: clamp(0.25rem, 0.4vh, 0.35rem);">
+                <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem); font-size: clamp(0.7rem, 1.2vw, 0.9rem);">
+                    2. Variáveis: x<sub>1</sub>, x<sub>2</sub> &ge; 0
+                </div>
+                <p style="color: var(--accent-light); font-size: clamp(0.9rem, 1.5vw, 1.2rem); text-align: center;">→</p>
+                <div style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem);">
+                    <code style="font-size: clamp(0.65rem, 1.1vw, 0.85rem); color: var(--accent-light);">x1 = LpVariable("x1", lowBound=0)</code>
+                </div>
+            </div>
+            <!-- Row 3 -->
+            <div class="reveal" style="display: grid; grid-template-columns: 1fr 2rem 1fr; gap: 0; align-items: center; margin-bottom: clamp(0.25rem, 0.4vh, 0.35rem);">
+                <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem); font-size: clamp(0.7rem, 1.2vw, 0.9rem);">
+                    3. Objetivo: Max 2x<sub>1</sub> + 5x<sub>2</sub>
+                </div>
+                <p style="color: var(--accent-light); font-size: clamp(0.9rem, 1.5vw, 1.2rem); text-align: center;">→</p>
+                <div style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem);">
+                    <code style="font-size: clamp(0.65rem, 1.1vw, 0.85rem); color: var(--accent-light);">prob += 2*x1 + 5*x2</code>
+                </div>
+            </div>
+            <!-- Row 4 -->
+            <div class="reveal" style="display: grid; grid-template-columns: 1fr 2rem 1fr; gap: 0; align-items: center; margin-bottom: clamp(0.25rem, 0.4vh, 0.35rem);">
+                <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem); font-size: clamp(0.7rem, 1.2vw, 0.9rem);">
+                    4. Restrições: x<sub>1</sub>+2x<sub>2</sub> &le; 10
+                </div>
+                <p style="color: var(--accent-light); font-size: clamp(0.9rem, 1.5vw, 1.2rem); text-align: center;">→</p>
+                <div style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem);">
+                    <code style="font-size: clamp(0.65rem, 1.1vw, 0.85rem); color: var(--accent-light);">prob += x1 + 2*x2 &lt;= 10</code>
+                </div>
+            </div>
+            <!-- Row 5 -->
+            <div class="reveal" style="display: grid; grid-template-columns: 1fr 2rem 1fr; gap: 0; align-items: center;">
+                <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem); font-size: clamp(0.7rem, 1.2vw, 0.9rem);">
+                    5. Resolver!
+                </div>
+                <p style="color: var(--accent-light); font-size: clamp(0.9rem, 1.5vw, 1.2rem); text-align: center;">→</p>
+                <div style="background: rgba(173,52,254,0.06); border: 1px solid rgba(173,52,254,0.15); border-radius: 8px; padding: clamp(0.3rem, 0.6vw, 0.5rem);">
+                    <code style="font-size: clamp(0.65rem, 1.1vw, 0.85rem); color: var(--accent-light);">prob.solve()</code>
+                </div>
+            </div>
+            <div class="highlight-box reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem); font-size: var(--small-size);">
+                O modelo que vocês escreveram no caderno é <strong>exatamente</strong> o que vira código. Só muda a sintaxe.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SEU JOAO EM PYTHON
+         ======================================== -->
+    <section class="slide" data-slide="36">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Seu João em Python</h2>
+            <pre class="reveal mono" style="background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid var(--accent); border-radius: 8px; padding: clamp(0.75rem, 2vw, 1.5rem); font-size: var(--small-size); line-height: 1.6; overflow-x: auto;"><code>from pulp import *
+prob = LpProblem("Padaria", LpMaximize)
+x1 = LpVariable("paes", lowBound=0)
+x2 = LpVariable("bolos", lowBound=0)
+prob += 2*x1 + 5*x2
+prob += x1 + 2*x2 &lt;= 10
+prob += x1 +   x2 &lt;= 6
+prob.solve(PULP_CBC_CMD(msg=0))
+print(f"Pães: {x1.varValue}")
+print(f"Bolos: {x2.varValue}")
+print(f"Lucro: R$ {value(prob.objective)}")</code></pre>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Resultado: Pães=0, Bolos=5, <strong>Lucro = R$ 25</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         EXERCÍCIO: FÁBRICA DE MÓVEIS (resultado fracionário)
+         ======================================== -->
+    <section class="slide" data-slide="37-exercicio">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Exercício → Fábrica de Móveis</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.3rem, 0.8vh, 0.5rem);">Uma fábrica produz <strong>cadeiras</strong> e <strong>mesas</strong>.</p>
+            <table class="data-table reveal" style="font-size: var(--small-size);">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Lucro</th>
+                        <th>Madeira (m²)</th>
+                        <th>Mão de obra (h)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Cadeira</td><td>R$ 40</td><td>2</td><td>3</td></tr>
+                    <tr><td>Mesa</td><td>R$ 70</td><td>5</td><td>4</td></tr>
+                    <tr class="row-highlight"><td><strong>Disponível</strong></td><td>-</td><td><strong>30 m²</strong></td><td><strong>28 h</strong></td></tr>
+                </tbody>
+            </table>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                <strong>No Colab:</strong> modelem e resolvam com PuLP. Qual o lucro máximo?
+            </div>
+            <div class="highlight-box reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem);">
+                Dica: usem o código do Seu João como base. Só mudem os números.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         RESULTADO: FÁBRICA DE MÓVEIS
+         ======================================== -->
+    <section class="slide" data-slide="37-resultado">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Resultado → Fábrica de Móveis</h2>
+            <pre class="reveal mono" style="background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid var(--green); border-radius: 8px; padding: clamp(0.5rem, 1.5vw, 1rem); font-size: clamp(0.7rem, 1.3vw, 0.95rem); line-height: 1.5; overflow-x: auto;"><code>from pulp import *
+prob = LpProblem("Moveis", LpMaximize)
+x1 = LpVariable("cadeiras", lowBound=0)
+x2 = LpVariable("mesas", lowBound=0)
+prob += 40*x1 + 70*x2
+prob += 2*x1 + 5*x2 &lt;= 30   # madeira
+prob += 3*x1 + 4*x2 &lt;= 28   # mão de obra
+prob.solve(PULP_CBC_CMD(msg=0))
+print(f"Cadeiras: {x1.varValue}")
+print(f"Mesas: {x2.varValue}")
+print(f"Lucro: R$ {value(prob.objective)}")</code></pre>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.5rem, 1vh, 0.8rem);">
+                Cadeiras = <strong>2.857</strong>, Mesas = <strong>4.857</strong>, Lucro = <strong>R$ 454.29</strong>
+            </div>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem); font-size: var(--body-size);">
+                <strong>2.857 cadeiras? 4.857 mesas?</strong> Como fabrica pedaço de móvel? 🤔<br>
+                Arredondamos? Será que é a melhor decisão?<br>
+                <strong style="color: var(--accent-light);">Amanhã → Programação Inteira resolve isso.</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         EXERCÍCIO: VERBOO — PLANOS DE IA
+         ======================================== -->
+    <section class="slide" data-slide="ex-verboo">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Agora vocês → Planos de IA (caso real)</h2>
+            <p class="reveal" style="color: var(--text-muted); margin-bottom: clamp(0.3rem, 0.5vh, 0.5rem);">A Verboo tem <strong>6 pessoas</strong> na equipe. Cada uma precisa de uma ferramenta de IA.</p>
+            <table class="data-table reveal" style="font-size: clamp(0.55rem, 1vw, 0.78rem);">
+                <thead>
+                    <tr>
+                        <th>Plano</th>
+                        <th>Custo/mês (R$)</th>
+                        <th>Produtividade (1-5)</th>
+                        <th>Capacidade (1-10)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Codex Go</td><td>45</td><td>3</td><td>2</td></tr>
+                    <tr><td>Codex Plus</td><td>110</td><td>4</td><td>5</td></tr>
+                    <tr><td>Claude Pro</td><td>110</td><td>4</td><td>7</td></tr>
+                    <tr><td>Claude Max</td><td>550</td><td>5</td><td>10</td></tr>
+                    <tr><td>Gemini AI Plus</td><td>25</td><td>3</td><td>3</td></tr>
+                    <tr><td>Gemini AI Pro</td><td>97</td><td>4</td><td>8</td></tr>
+                </tbody>
+            </table>
+            <ul class="bullet-list reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem); font-size: var(--small-size);">
+                <li>Budget: <strong>R$ 2.000/mês</strong></li>
+                <li>Todas as 6 pessoas precisam de um plano</li>
+                <li>Capacidade total do time ≥ 30</li>
+                <li>Maximizar a <strong>produtividade total</strong></li>
+            </ul>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem);">
+                <strong>No Colab:</strong> modelem e resolvam. Quantas licenças de cada?
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SOLUÇÃO: VERBOO — PLANOS DE IA
+         ======================================== -->
+    <section class="slide" data-slide="ex-verboo-sol">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Solução → Planos de IA</h2>
+            <pre class="reveal mono" style="background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid var(--green); border-radius: 8px; padding: clamp(0.4rem, 1.2vw, 0.8rem); font-size: clamp(0.55rem, 1.05vw, 0.8rem); line-height: 1.45; overflow-x: auto;"><code>prob = LpProblem("Planos_IA", LpMaximize)
+x1 = LpVariable("Codex_Go", lowBound=0)
+x2 = LpVariable("Codex_Plus", lowBound=0)
+x3 = LpVariable("Claude_Pro", lowBound=0)
+x4 = LpVariable("Claude_Max", lowBound=0)
+x5 = LpVariable("Gemini_Plus", lowBound=0)
+x6 = LpVariable("Gemini_Pro", lowBound=0)
+prob += 3*x1 + 4*x2 + 4*x3 + 5*x4 + 3*x5 + 4*x6       # produtividade
+prob += 45*x1+110*x2+110*x3+550*x4+25*x5+97*x6 &lt;= 2000  # budget
+prob += x1 + x2 + x3 + x4 + x5 + x6 == 6                # 6 pessoas
+prob += 2*x1 + 5*x2 + 7*x3 + 10*x4 + 3*x5 + 8*x6 >= 30 # capacidade</code></pre>
+            <div class="highlight-box green reveal" style="margin-top: clamp(0.4rem, 0.8vh, 0.6rem);">
+                Claude Max = <strong>3.13</strong>, Gemini Pro = <strong>2.87</strong>, resto = 0<br>
+                Produtividade: <strong>27.13</strong> &nbsp;|&nbsp; Custo: <strong>R$ 2.000</strong> (esgotado)
+            </div>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem); font-size: var(--body-size);">
+                <strong>3.13 licenças de Claude Max?</strong> Não existe isso! 🤔<br>
+                Compro 3 ou 4? E como fica o Gemini? Estoura o budget?<br>
+                <strong style="color: var(--accent-light);">Amanhã → Programação Inteira!</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         EXERCÍCIO: BUDGET DE MARKETING
+         ======================================== -->
+    <section class="slide" data-slide="ex-mkt">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Exercício para Casa → Budget de Marketing</h2>
+            <p class="reveal" style="font-size: var(--small-size); line-height: 1.6;">Uma startup de tecnologia tem um budget de marketing de <strong>R$ 50 mil por mês</strong> e pode investir em três canais: <strong>Google Ads</strong> (gera 40 leads por R$ 1k investido, limite de R$ 30k), <strong>Instagram</strong> (65 leads por R$ 1k, limite de R$ 20k) e <strong>Eventos</strong> (10 leads por R$ 1k, limite de R$ 15k). O investimento em Instagram e Eventos <strong>juntos</strong> não pode ultrapassar R$ 25 mil.</p>
+            <p class="reveal" style="font-size: var(--small-size); line-height: 1.6; margin-top: clamp(0.3rem, 0.5vh, 0.5rem);"><strong>Objetivo:</strong> maximizar o número total de leads gerados.</p>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem); font-size: var(--small-size);">
+                Identifiquem variáveis, função objetivo e restrições. Modelem e resolvam com PuLP.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         EXERCÍCIO: ESCALA HOSPITALAR
+         ======================================== -->
+    <section class="slide" data-slide="ex-hospital">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Exercício para Casa → Escala Hospitalar</h2>
+            <p class="reveal" style="font-size: var(--small-size); line-height: 1.6;">Um hospital precisa montar a escala semanal de <strong>8 médicos</strong> em <strong>3 turnos</strong> (manhã, tarde e noite) ao longo de <strong>5 dias úteis</strong>. Cada turno precisa de pelo menos <strong>2 médicos</strong>, e nenhum médico pode trabalhar mais de <strong>5 turnos</strong> na semana. Quem faz o turno da <strong>noite</strong> não pode fazer o turno da <strong>manhã no dia seguinte</strong>. Cada médico tem uma nota de preferência de 1 a 10 por turno.</p>
+            <p class="reveal" style="font-size: var(--small-size); line-height: 1.6; margin-top: clamp(0.3rem, 0.5vh, 0.5rem);"><strong>Objetivo:</strong> montar a escala que maximize a satisfação total dos médicos.</p>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.3rem, 0.5vh, 0.5rem); font-size: var(--small-size);">
+                Quantas variáveis? Que tipo? É PL ou PI? Modelem e resolvam com PuLP.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 39: DIVISOR 08 — RESUMO
+         ======================================== -->
+    <section class="slide divider-slide" data-slide="38">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <p class="reveal section-number">// Seção 08</p>
+            <h2 class="reveal glow">Resumo e Próximos Passos</h2>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 40: O QUE VIMOS HOJE
+         ======================================== -->
+    <section class="slide" data-slide="39">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">O que Vimos Hoje</h2>
+            <ol class="steps">
+                <li class="reveal"><strong>PO</strong> = matemática para decisões melhores</li>
+                <li class="reveal"><strong>Modelagem</strong> = variáveis + objetivo + restrições</li>
+                <li class="reveal"><strong>Gráfico</strong> = vértices, viabilidade, Z</li>
+                <li class="reveal"><strong>Simplex</strong> = vértice em vértice, algébrico</li>
+                <li class="reveal"><strong>Python</strong> = resolve em 15 linhas</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 41: AMANHA — AULA 2
+         ======================================== -->
+    <section class="slide" data-slide="40">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h2 class="reveal">Amanhã → Aula 2</h2>
+            <ul class="bullet-list">
+                <li class="reveal"><strong>Programação Inteira e Otimização Combinatória</strong></li>
+                <li class="sub reveal">&ldquo;Deu 4.857 mesas. E agora?&rdquo;</li>
+                <li class="sub reveal">Variáveis inteiras e binárias (sim/não)</li>
+                <li class="sub reveal">Problema da Mochila e Seleção de Projetos</li>
+            </ul>
+            <div class="highlight-box amber reveal" style="margin-top: clamp(0.5rem, 1vh, 1rem);">
+                Amanhã <strong>vocês vêm aqui na frente</strong>!
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 42: OBRIGADO
+         ======================================== -->
+    <section class="slide title-slide" data-slide="41">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="slide-content">
+            <h1 class="reveal glow">Obrigado!</h1>
+            <p class="reveal subtitle">Prof. Mafra</p>
+            <p class="reveal meta">mafra@verboo.ai</p>
+        </div>
+    </section>
+
+
+    <!-- ===========================================
+         JAVASCRIPT: PRESENTATION CONTROLLER
+         =========================================== -->
+    <script>
+    /* ===========================================
+       SlidePresentation — main controller
+       Handles navigation, progress, dots, observer
+       =========================================== */
+    class SlidePresentation {
+        constructor() {
+            this.slides = document.querySelectorAll('.slide');
+            this.currentSlide = 0;
+            this.totalSlides = this.slides.length;
+
+            this.setupIntersectionObserver();
+            this.setupKeyboardNav();
+            this.setupTouchNav();
+            this.setupWheelNav();
+            this.setupProgressBar();
+            this.setupNavDots();
+        }
+
+        /* Intersection Observer — adds .visible class when slide enters viewport */
+        setupIntersectionObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        const idx = Array.from(this.slides).indexOf(entry.target);
+                        if (idx >= 0) {
+                            this.currentSlide = idx;
+                            this.updateProgressBar();
+                            this.updateNavDots();
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            this.slides.forEach(slide => observer.observe(slide));
+        }
+
+        /* Keyboard navigation — arrows, space, page up/down, home, end */
+        setupKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                if (e.target.getAttribute('contenteditable')) return;
+                switch(e.key) {
+                    case 'ArrowDown': case 'ArrowRight': case ' ': case 'PageDown':
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide + 1);
+                        break;
+                    case 'ArrowUp': case 'ArrowLeft': case 'PageUp':
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide - 1);
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        this.goToSlide(0);
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        this.goToSlide(this.totalSlides - 1);
+                        break;
+                }
+            });
+        }
+
+        /* Touch/swipe support */
+        setupTouchNav() {
+            let startY = 0;
+            document.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            document.addEventListener('touchend', (e) => {
+                const diff = startY - e.changedTouches[0].clientY;
+                if (Math.abs(diff) > 50) {
+                    this.goToSlide(this.currentSlide + (diff > 0 ? 1 : -1));
+                }
+            }, { passive: true });
+        }
+
+        /* Mouse wheel navigation with debounce */
+        setupWheelNav() {
+            let lastTime = 0;
+            document.addEventListener('wheel', (e) => {
+                const now = Date.now();
+                if (now - lastTime < 800) return;
+                lastTime = now;
+                if (e.deltaY > 0) this.goToSlide(this.currentSlide + 1);
+                else if (e.deltaY < 0) this.goToSlide(this.currentSlide - 1);
+            }, { passive: true });
+        }
+
+        /* Navigate to a specific slide index */
+        goToSlide(index) {
+            if (index < 0 || index >= this.totalSlides) return;
+            this.currentSlide = index;
+            this.slides[index].scrollIntoView({ behavior: 'smooth' });
+            this.updateProgressBar();
+            this.updateNavDots();
+        }
+
+        /* Progress bar at the top */
+        setupProgressBar() {
+            this.progressBar = document.getElementById('progressBar');
+            this.updateProgressBar();
+        }
+        updateProgressBar() {
+            const pct = ((this.currentSlide + 1) / this.totalSlides) * 100;
+            this.progressBar.style.width = pct + '%';
+        }
+
+        /* Slide counter navigation (replaces dots) */
+        setupNavDots() {
+            this.navCurrent = document.getElementById('navCurrent');
+            this.navTotal = document.getElementById('navTotal');
+            this.navTotal.textContent = this.totalSlides;
+            document.getElementById('navPrev').addEventListener('click', () => this.navigate(-1));
+            document.getElementById('navNext').addEventListener('click', () => this.navigate(1));
+        }
+        updateNavDots() {
+            this.navCurrent.textContent = this.currentSlide + 1;
+        }
+    }
+
+    /* ===========================================
+       InlineEditor — toggle edit mode, export clean HTML
+       Hotzone hover top-left, E key, Ctrl+S to save
+       =========================================== */
+    class InlineEditor {
+        constructor() {
+            this.isActive = false;
+            this.editToggle = document.getElementById('editToggle');
+            this.editBanner = document.getElementById('editBanner');
+            this.setupHotzone();
+            this.setupKeyboard();
+        }
+
+        /* Hotzone hover with 400ms grace period (JS-based, not CSS ~) */
+        setupHotzone() {
+            const hotzone = document.getElementById('editHotzone');
+            let hideTimeout = null;
+
+            hotzone.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                this.editToggle.classList.add('show');
+            });
+            hotzone.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    if (!this.isActive) this.editToggle.classList.remove('show');
+                }, 400);
+            });
+            this.editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+            this.editToggle.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    if (!this.isActive) this.editToggle.classList.remove('show');
+                }, 400);
+            });
+
+            this.editToggle.addEventListener('click', () => this.toggleEditMode());
+            hotzone.addEventListener('click', () => this.toggleEditMode());
+        }
+
+        /* E key toggles edit, Ctrl+S exports */
+        setupKeyboard() {
+            document.addEventListener('keydown', (e) => {
+                if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                    this.toggleEditMode();
+                }
+                if (e.key === 's' && (e.ctrlKey || e.metaKey) && this.isActive) {
+                    e.preventDefault();
+                    this.exportFile();
+                }
+            });
+        }
+
+        /* Toggle contenteditable on text elements */
+        toggleEditMode() {
+            this.isActive = !this.isActive;
+            document.body.classList.toggle('edit-active', this.isActive);
+            this.editToggle.classList.toggle('active', this.isActive);
+            this.editBanner.classList.toggle('active', this.isActive);
+
+            const editables = document.querySelectorAll('h1, h2, h3, p, li, td, th, .formula, .highlight-box');
+            editables.forEach(el => {
+                if (this.isActive) el.setAttribute('contenteditable', 'true');
+                else el.removeAttribute('contenteditable');
+            });
+        }
+
+        /* Export clean HTML (strips edit state before capturing outerHTML) */
+        exportFile() {
+            const editableEls = Array.from(document.querySelectorAll('[contenteditable]'));
+            editableEls.forEach(el => el.removeAttribute('contenteditable'));
+            document.body.classList.remove('edit-active');
+            this.editToggle.classList.remove('active', 'show');
+            this.editBanner.classList.remove('active', 'show');
+
+            const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+            document.body.classList.add('edit-active');
+            editableEls.forEach(el => el.setAttribute('contenteditable', 'true'));
+            this.editToggle.classList.add('active');
+            this.editBanner.classList.add('active');
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'aula1_fundamentos_pl.html';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+    }
+
+    /* Initialize everything */
+    const presentation = new SlidePresentation();
+    const editor = new InlineEditor();
+    </script>
+</body>
+</html>
